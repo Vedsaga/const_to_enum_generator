@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:analyzer/dart/element/element.dart';
 import 'package:build/build.dart';
-import 'package:const_to_enum_generator/src/annotations.dart';
+import 'package:const_to_enum_annotations/const_to_enum_annotations.dart';
 import 'package:source_gen/source_gen.dart';
 
 /// A [Generator] for creating enum from static const strings in a class.

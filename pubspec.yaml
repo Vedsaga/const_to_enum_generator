@@ -9,6 +9,10 @@ environment:
 dependencies:
   analyzer: ^6.3.0 # Required for working with Dart's analyzer
   build: ^2.4.1
+  const_to_enum_annotations:
+    git:
+      url: https://github.com/Vedsaga/const_to_enum_annotations.git
+      ref: main
   source_gen: ^1.0.0 # Needed for GeneratorForAnnotation
 
 dev_dependencies:
