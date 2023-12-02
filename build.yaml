@@ -2,6 +2,6 @@ builders:
   constToEnumBuilder:
     import: "package:const_to_enum_generator/src/builder.dart"
     builder_factories: ["constToEnumBuilder"]
-    build_extensions: { ".dart": [".g.dart"] }
+    build_extensions: { ".dart": [".static_const.dart"] }
     auto_apply: dependents
     build_to: source
