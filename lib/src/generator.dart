@@ -56,42 +56,36 @@ class ConstToEnumGenerator extends GeneratorForAnnotation<GenerateStaticConst> {
       )
       ..writeln('enum $enumName {');
 
+    // Generate enum values and prepare a map for switch cases
     final overriddenValues = <String, String>{};
     for (final field in fields) {
+      // Check for overridden value or use the field's default value
       final stringValueAnnotation = _getStringValueAnnotation(field);
-      final enumValue = stringValueAnnotation ??
-          field.computeConstantValue()!.toStringValue();
-      overriddenValues[field.name] = enumValue ?? defaultValue ?? '';
+      final variableValue = field.computeConstantValue()?.toStringValue();
+      final enumValue =
+          stringValueAnnotation ?? variableValue ?? defaultValue ?? '';
+
+      overriddenValues[field.name] = enumValue;
       buffer
         ..write("${field.name}('$enumValue')")
         ..writeln(fields.last == field ? ';' : ',');
     }
-
+    // Constructor and path variable
     buffer
       ..writeln('  const $enumName(this.stringValue);')
       ..writeln('  final String stringValue;')
-      ..writeln('  static $enumName fromStringValue(String stringValue) {')
+      ..writeln('  static $enumName? fromStringValue(String stringValue) {')
       ..writeln('    switch (stringValue) {');
 
-      for (final field in fields) {
-      for (final field in fields) {
-        buffer.writeln(
-          """      case '${field.computeConstantValue()!.toStringValue()}': return $enumName.${field.name};""",
-        );
-      }
-    for (final field in fields) {
-        buffer.writeln(
-          """      case '${field.computeConstantValue()!.toStringValue()}': return $enumName.${field.name};""",
-        );
-      }
+    for (final entry in overriddenValues.entries) {
       buffer
-        ..writeln("      case '${overriddenValues[field.name]}':")
-        ..writeln('        return $enumName.${field.name};');
+        ..writeln("      case '${entry.value}':")
+        ..writeln('        return $enumName.${entry.key};');
     }
 
     buffer
       ..writeln('      default:')
-      ..writeln('        return null;') // Handle default case if needed
+      ..writeln('        return null;')
       ..writeln('    }')
       ..writeln('  }')
       ..writeln('}');
