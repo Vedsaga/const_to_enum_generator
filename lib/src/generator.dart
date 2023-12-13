@@ -56,12 +56,14 @@ class ConstToEnumGenerator extends GeneratorForAnnotation<GenerateStaticConst> {
       ..writeln('enum $enumName {');
 
     // Generate enum values
+// Generate enum values
     for (var i = 0; i < fields.length; i++) {
       final field = fields.elementAt(i);
+      final stringValueAnnotation = _getStringValueAnnotation(field);
+      final enumValue = stringValueAnnotation ??
+          field.computeConstantValue()!.toStringValue();
       buffer
-        ..write(
-          "${field.name}('${field.computeConstantValue()!.toStringValue()}')",
-        )
+        ..write("${field.name}('$enumValue')")
         ..writeln(i == fields.length - 1 ? ';' : ',');
     }
 
@@ -103,5 +105,15 @@ class ConstToEnumGenerator extends GeneratorForAnnotation<GenerateStaticConst> {
     buffer.writeln('}');
 
     return buffer.toString();
+  }
+
+  // Helper method to extract the StringValue annotation
+  String? _getStringValueAnnotation(FieldElement field) {
+    for (final meta in field.metadata) {
+      if (meta.computeConstantValue()?.type?.element?.name == 'StringValue') {
+        return meta.computeConstantValue()?.getField('value')?.toStringValue();
+      }
+    }
+    return null;
   }
 }
