@@ -18,6 +18,7 @@ class ConstToEnumGenerator extends GeneratorForAnnotation<GenerateStaticConst> {
     if (element is! ClassElement) {
       throw InvalidGenerationSourceError(
         '`@generateStaticConst` can only be used on classes.',
+        element: element,
       );
     }
 
@@ -55,63 +56,56 @@ class ConstToEnumGenerator extends GeneratorForAnnotation<GenerateStaticConst> {
       )
       ..writeln('enum $enumName {');
 
-    // Generate enum values
-// Generate enum values
-    for (var i = 0; i < fields.length; i++) {
-      final field = fields.elementAt(i);
+    final overriddenValues = <String, String>{};
+    for (final field in fields) {
       final stringValueAnnotation = _getStringValueAnnotation(field);
       final enumValue = stringValueAnnotation ??
           field.computeConstantValue()!.toStringValue();
+      overriddenValues[field.name] = enumValue ?? defaultValue ?? '';
       buffer
         ..write("${field.name}('$enumValue')")
-        ..writeln(i == fields.length - 1 ? ';' : ',');
+        ..writeln(fields.last == field ? ';' : ',');
     }
 
-    // Constructor and path variable
     buffer
       ..writeln('  const $enumName(this.stringValue);')
-      ..writeln('  final String stringValue;');
+      ..writeln('  final String stringValue;')
+      ..writeln('  static $enumName fromStringValue(String stringValue) {')
+      ..writeln('    switch (stringValue) {');
 
-    if (hasValidDefaultValue) {
-      buffer
-        ..writeln('  static $enumName fromStringValue(String stringValue) {')
-        ..writeln('    switch (stringValue) {');
+      for (final field in fields) {
       for (final field in fields) {
         buffer.writeln(
           """      case '${field.computeConstantValue()!.toStringValue()}': return $enumName.${field.name};""",
         );
       }
-      buffer
-        ..writeln('      default: return $enumName.$defaultValueFieldName;')
-        ..writeln('    }')
-        ..writeln('  }');
-    }
-
-    if (defaultValue == null) {
-      buffer
-        ..writeln('  static $enumName? fromStringValue(String stringValue) {')
-        ..writeln('    switch (stringValue) {');
-      for (final field in fields) {
+    for (final field in fields) {
         buffer.writeln(
           """      case '${field.computeConstantValue()!.toStringValue()}': return $enumName.${field.name};""",
         );
       }
       buffer
-        ..writeln('      default: return null;')
-        ..writeln('    }')
-        ..writeln('  }');
+        ..writeln("      case '${overriddenValues[field.name]}':")
+        ..writeln('        return $enumName.${field.name};');
     }
 
-    buffer.writeln('}');
+    buffer
+      ..writeln('      default:')
+      ..writeln('        return null;') // Handle default case if needed
+      ..writeln('    }')
+      ..writeln('  }')
+      ..writeln('}');
 
     return buffer.toString();
   }
 
-  // Helper method to extract the StringValue annotation
   String? _getStringValueAnnotation(FieldElement field) {
-    for (final meta in field.metadata) {
-      if (meta.computeConstantValue()?.type?.element?.name == 'StringValue') {
-        return meta.computeConstantValue()?.getField('value')?.toStringValue();
+    final annotations = field.metadata;
+    for (final annotation in annotations) {
+      final constantValue = annotation.computeConstantValue();
+      if (constantValue != null &&
+          constantValue.type?.element?.name == 'StringValue') {
+        return constantValue.getField('value')?.toStringValue();
       }
     }
     return null;
