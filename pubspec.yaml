@@ -1,22 +1,22 @@
 name: const_to_enum_generator
 description: A Dart code generator an enum for static const strings in a class.
-version: 0.1.0+1
+version: 1.0.0+1
 publish_to: none
 
 environment:
   sdk: ">=3.1.0 <4.0.0"
 
 dependencies:
-  analyzer: ^6.0.0 # Required for working with Dart's analyzer
+  analyzer: ^7.3.0 # Required for working with Dart's analyzer
   build: ^2.4.1
   const_to_enum_annotations:
     git:
       url: https://github.com/Vedsaga/const_to_enum_annotations.git
       ref: main
-  source_gen: ^1.0.0 # Needed for GeneratorForAnnotation
+  source_gen: ^2.0.0 # Needed for GeneratorForAnnotation
 
 dev_dependencies:
   build_test: ^2.1.0 # Useful for testing builders
   mocktail: ^1.0.0
   test: ^1.25.0
-  very_good_analysis: ^5.1.0
+  very_good_analysis: ^7.0.0
