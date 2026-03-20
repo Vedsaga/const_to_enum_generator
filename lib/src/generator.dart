@@ -64,8 +64,8 @@ class ConstToEnumGenerator extends GeneratorForAnnotation<GenerateStaticConst> {
       final variableValue = field.computeConstantValue()?.toStringValue();
       final enumValue =
           stringValueAnnotation ?? variableValue ?? defaultValue ?? '';
-
-      overriddenValues[field.name] = enumValue;
+      // overriddenValues[field.name] = enumValue;
+      overriddenValues[field.name.toString()] = enumValue;
       buffer
         ..write("${field.name}('$enumValue')")
         ..writeln(fields.last == field ? ';' : ',');
@@ -95,7 +95,7 @@ class ConstToEnumGenerator extends GeneratorForAnnotation<GenerateStaticConst> {
 
   String? _getStringValueAnnotation(FieldElement field) {
     final annotations = field.metadata;
-    for (final annotation in annotations) {
+    for (final annotation in annotations.annotations) {
       final constantValue = annotation.computeConstantValue();
       if (constantValue != null &&
           constantValue.type?.element?.name == 'StringValue') {
