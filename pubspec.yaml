@@ -8,7 +8,7 @@ environment:
 
 dependencies:
   analyzer: ^8.4.1
-  build: ^3.0.0
+  build: ^4.0.5
   source_gen: ^4.0.0
   const_to_enum_annotations:
     git:
